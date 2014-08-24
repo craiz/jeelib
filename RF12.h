@@ -111,8 +111,11 @@ void rf12_sleep(char n);
 /// Return true if the supply voltage is below 3.1V.
 char rf12_lowbat(void);
 
-/// Set up the easy tranmission mode, arg is number of seconds between packets.
+/// Set up the easy transmission mode, arg is number of seconds between packets.
 void rf12_easyInit(uint8_t secs);
+
+/// Override teh easy transmission mode retry count and delay.
+void rf12_easyConfig(uint8_t retries, uint16_t delay);
 
 /// Call this often to keep the easy transmission mode going.
 char rf12_easyPoll(void);

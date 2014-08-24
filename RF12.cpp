@@ -776,6 +776,21 @@ void rf12_easyInit (uint8_t secs) {
     ezInterval = secs;
 }
 
+
+uint8_t  ezRetries = RETRIES;
+uint16_t ezRetryDelay = RETRY_MS;
+
+
+/// @details
+/// Allows overriding the default easy send retry and delay values.
+///
+/// @note To be used in combination with rf12_easyInit() and rf12_easySend().
+void rf12_easyConfig(uint8_t retries, uint16_t delay)
+{
+    ezRetries = retries;
+    ezRetryDelay = delay;
+}
+
 /// @details
 /// Needs to be called often to keep the easy transmission mechanism going, 
 /// i.e. once per millisecond or more in normal use. Failure to poll frequently 
@@ -798,10 +813,10 @@ char rf12_easyPoll () {
     if (ezPending > 0) {
         // new data sends should not happen less than ezInterval seconds apart
         // ... whereas retries should not happen less than RETRY_MS apart
-        byte newData = ezPending == RETRIES;
+        byte newData = ezPending == ezRetries;
         long now = millis();
         if (now >= ezNextSend[newData] && rf12_canSend()) {
-            ezNextSend[0] = now + RETRY_MS;
+            ezNextSend[0] = now + ezRetryDelay;
             // must send new data packets at least ezInterval seconds apart
             // ezInterval == 0 is a special case:
             //      for the 868 MHz band: enforce 1% max bandwidth constraint
@@ -848,7 +863,7 @@ char rf12_easySend (const void* data, uint8_t size) {
         memcpy(ezSendBuf, data, size);
         ezSendLen = size;
     }
-    ezPending = RETRIES;
+    ezPending = ezRetries;    
     return 1;
 }
 
